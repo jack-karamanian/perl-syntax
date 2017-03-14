@@ -12,7 +12,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:plaintext"
+    "onLanguage:perl"
   ],
   "main": "./out/src/extension",
   "contributes": {
