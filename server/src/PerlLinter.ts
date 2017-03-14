@@ -14,29 +14,21 @@ export class PerlLinter {
 
             lines.forEach((line, index) => {
                 if(line.indexOf('line') != -1) {
-                    console.log(line);
                     let lineNum = this.extractLineNumber(line) - 1;
-                    // console.log(lineNum);
 ;                   if(!isNaN(lineNum)) {
                         const diagnostic: Diagnostic =  Diagnostic.create(Range.create(Position.create(lineNum, 0), Position.create(lineNum, lineStr.length)), lineStr, DiagnosticSeverity.Error);
                         diagnostics.push(diagnostic);
                     }
                 }    
-            });
-            
-            
-            
+            });     
         });
         process.addListener('exit', function(code: number, signal: string) {
             callback(diagnostics);    
-        });
-        
+        });   
     }
 
     private extractLineNumber(line: string): number {
         const matches = line.match(/line (\d*)[\.,]/);
-        console.log(line);
-        console.log(matches);
         return parseInt(matches[1]);
         
     }
