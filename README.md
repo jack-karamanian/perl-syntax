@@ -1,2 +1,2 @@
-# vscode-languageserver-node-example
-Sample language server implemented in Node
+# vscode-perlsyntax
+Basic Perl syntax highlighter for Visual Studio Code.
