@@ -12,9 +12,11 @@ import {
 	CompletionItem, CompletionItemKind
 } from 'vscode-languageserver';
 
+import { PerlLinter } from './PerlLinter';
+
 // Create a connection for the server. The connection uses Node's IPC as a transport
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
-
+const linter: PerlLinter = new PerlLinter([]);
 // Create a simple text document manager. The text document manager
 // supports full document sync only
 let documents: TextDocuments = new TextDocuments();
@@ -71,24 +73,27 @@ function validateTextDocument(textDocument: TextDocument): void {
 	let diagnostics: Diagnostic[] = [];
 	let lines = textDocument.getText().split(/\r?\n/g);
 	let problems = 0;
-	for (var i = 0; i < lines.length && problems < maxNumberOfProblems; i++) {
-		let line = lines[i];
-		let index = line.indexOf('typescript');
-		if (index >= 0) {
-			problems++;
-			diagnostics.push({
-				severity: DiagnosticSeverity.Warning,
-				range: {
-					start: { line: i, character: index},
-					end: { line: i, character: index + 10 }
-				},
-				message: `${line.substr(index, 10)} should be spelled TypeScript`,
-				source: 'ex'
-			});
-		}
-	}
+	linter.lint(textDocument.getText(), (diags: Diagnostic[]) => {
+		connection.sendDiagnostics({ uri: textDocument.uri, diagnostics: diags });
+	});
+	// for (var i = 0; i < lines.length && problems < maxNumberOfProblems; i++) {
+	// 	let line = lines[i];
+	// 	let index = line.indexOf('typescript');
+	// 	if (index >= 0) {
+	// 		problems++;
+	// 		diagnostics.push({
+	// 			severity: DiagnosticSeverity.Error,
+	// 			range: {
+	// 				start: { line: i, character: index},
+	// 				end: { line: i, character: index + 10 }
+	// 			},
+	// 			message: `${line.substr(index, 10)} should be spelled TypeScript`,
+	// 			source: 'ex'
+	// 		});
+	// 	}
+	// }
 	// Send the computed diagnostics to VSCode.
-	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+	
 }
 
 connection.onDidChangeWatchedFiles((change) => {
