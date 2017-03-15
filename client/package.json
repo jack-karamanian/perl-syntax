@@ -1,7 +1,7 @@
 {
-  "name": "language-client-example",
+  "name": "vscode-perlsyntax",
   "description": "VSCode part of a language server",
-  "author": "Microsoft Corporation",
+  "author": "Jack Karamanian",
   "license": "MIT",
   "version": "0.0.1",
   "publisher": "vscode",

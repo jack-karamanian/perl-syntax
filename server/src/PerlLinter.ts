@@ -13,10 +13,14 @@ export class PerlLinter {
             const lines: string[] = lineStr.split('\n');
 
             lines.forEach((line, index) => {
-                if(line.indexOf('line') != -1) {
+                if(line.match(/line (\d*)[\.,]/)) {
                     let lineNum = this.extractLineNumber(line) - 1;
                     if(!isNaN(lineNum)) {
-                        const diagnostic: Diagnostic =  Diagnostic.create(Range.create(Position.create(lineNum, 0), Position.create(lineNum, line.length)), line, DiagnosticSeverity.Error);
+                        const diagnostic: Diagnostic = Diagnostic.create(
+                            Range.create(Position.create(lineNum, 0), Position.create(lineNum, line.length)),
+                            line,
+                            DiagnosticSeverity.Error
+                        );
                         diagnostics.push(diagnostic);
                     }
                 }    
