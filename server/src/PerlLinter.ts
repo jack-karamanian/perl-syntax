@@ -16,7 +16,7 @@ export class PerlLinter {
                 if(line.indexOf('line') != -1) {
                     let lineNum = this.extractLineNumber(line) - 1;
                     if(!isNaN(lineNum)) {
-                        const diagnostic: Diagnostic =  Diagnostic.create(Range.create(Position.create(lineNum, 0), Position.create(lineNum, lineStr.length)), lineStr, DiagnosticSeverity.Error);
+                        const diagnostic: Diagnostic =  Diagnostic.create(Range.create(Position.create(lineNum, 0), Position.create(lineNum, line.length)), line, DiagnosticSeverity.Error);
                         diagnostics.push(diagnostic);
                     }
                 }    
