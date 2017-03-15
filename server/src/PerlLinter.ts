@@ -15,7 +15,7 @@ export class PerlLinter {
             lines.forEach((line, index) => {
                 if(line.indexOf('line') != -1) {
                     let lineNum = this.extractLineNumber(line) - 1;
-;                   if(!isNaN(lineNum)) {
+                    if(!isNaN(lineNum)) {
                         const diagnostic: Diagnostic =  Diagnostic.create(Range.create(Position.create(lineNum, 0), Position.create(lineNum, lineStr.length)), lineStr, DiagnosticSeverity.Error);
                         diagnostics.push(diagnostic);
                     }
@@ -29,7 +29,6 @@ export class PerlLinter {
 
     private extractLineNumber(line: string): number {
         const matches = line.match(/line (\d*)[\.,]/);
-        return parseInt(matches[1]);
-        
+        return parseInt(matches[1]);       
     }
 }
