@@ -6,9 +6,11 @@ export class PerlLinter {
 
     lint(text: string, callback: (diag: Diagnostic[]) => void) : void {
         const diagnostics: Diagnostic[] = [];
-        text.replace(/^use .*;$/, '\n');
+        // text = text.replace(/^use .*;$/gm, '');
 
-        const process: childProcess.ChildProcess = childProcess.spawn('perl', ['-c', '-e', "use strict;use warnings;" + text]);
+        const process: childProcess.ChildProcess = childProcess.spawn('perl', ['-Xc']);
+        process.stdin.write("use strict;use warnings;use experimental qw/smartmatch/;" + text);
+        process.stdin.end("\x04");
         process.stderr.on('data', (lineBuf) => {
             const lineStr: string = lineBuf.toString();
             const lines: string[] = lineStr.split('\n');
