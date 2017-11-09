@@ -1,13 +1,9 @@
-# README
-## This is the README for your extension "vscode" 
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+# perl-syntax
+A very basic Perl syntax checker for Visual Studio code.
 
-* Split the editor (`Cmd+\` on OSX or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on OSX or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (OSX) to see a list of Markdown snippets
+## Settings
+* `perlSyntax.includePaths` - Additional paths to include with `-I`.
+* `perlSyntax.prependCode` - Code to prepend to each document. Defaults to `use strict;` and `use warnings;`
+* `perSyntax.additionalOptions` - Any other command line options to specify to the Perl executable.
 
-### For more information
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-** Enjoy!**
+[Github](https://github.com/jack-karamanian/vscode-perlsyntax)
