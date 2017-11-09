@@ -1,6 +1,6 @@
 {
-  "name": "vscode-perlsyntax",
-  "description": "VSCode part of a language server",
+  "name": "perl-syntax",
+  "description": "Syntax checker for Perl.",
   "author": "Jack Karamanian",
   "license": "MIT",
   "version": "0.0.1",
@@ -20,21 +20,25 @@
       "type": "object",
       "title": "Example configuration",
       "properties": {
-        "languageServerExample.maxNumberOfProblems": {
-          "type": "number",
-          "default": 100,
-          "description": "Controls the maximum number of problems produced by the server."
+        "perlSyntax.includePaths": {
+          "type": "array",
+          "default": [],
+          "description": "The include paths specified to the Perl executable."
         },
-        "languageServerExample.trace.server": {
-          "type": "string",
-          "enum": [
-            "off",
-            "messages",
-            "verbose"
+        "perlSyntax.prependCode": {
+          "type": "array",
+          "default": [
+            "use strict;",
+            "use warnings;"
           ],
-          "default": "off",
-          "description": "Traces the communication between VSCode and the languageServerExample service."
-        }        
+          "description": "Code to prepend to each Perl document."
+        },
+        "perlSyntax.additionalOptions": {
+          "type": "array",
+          "default": [],
+          "description": "Additional options to pass to the Perl executable."
+        }
+      
       }
     }
   },
