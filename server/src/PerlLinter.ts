@@ -2,16 +2,22 @@ import * as childProcess from 'child_process';
 import { Diagnostic, Range, Position, DiagnosticSeverity } from 'vscode-languageserver';
 
 export class PerlLinter {
-    constructor(private includePath: string[]) { }
+    process: childProcess.ChildProcess;
+    constructor(private includePath: string[]) {
+        this.process = null;
+    }
 
     lint(text: string, callback: (diag: Diagnostic[]) => void) : void {
         const diagnostics: Diagnostic[] = [];
-        // text = text.replace(/^use .*;$/gm, '');
 
-        const process: childProcess.ChildProcess = childProcess.spawn('perl', ['-Xc']);
-        process.stdin.write("use strict;use warnings;use experimental qw/smartmatch/;" + text);
-        process.stdin.end("\x04");
-        process.stderr.on('data', (lineBuf) => {
+        if (this.process) {
+            this.process.kill('SIGINT');
+        }
+
+        this.process = childProcess.spawn('perl', ['-Xc']);
+        this.process.stdin.write("use strict;use warnings;use experimental qw/smartmatch/;" + text);
+        this.process.stdin.end("\x04");
+        this.process.stderr.on('data', (lineBuf) => {
             const lineStr: string = lineBuf.toString();
             const lines: string[] = lineStr.split('\n');
 
@@ -29,7 +35,7 @@ export class PerlLinter {
                 }    
             });     
         });
-        process.addListener('exit', function(code: number, signal: string) {
+        this.process.addListener('exit', function(code: number, signal: string) {
             callback(diagnostics);    
         });   
     }
