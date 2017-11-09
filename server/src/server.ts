@@ -12,13 +12,15 @@ import {
 	CompletionItem, CompletionItemKind
 } from 'vscode-languageserver';
 
+// import * as vscode from 'vscode';
+
 import { debounce } from 'lodash';
 
 import { PerlLinter } from './PerlLinter';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
-const linter: PerlLinter = new PerlLinter([]);
+const linter: PerlLinter = new PerlLinter([], [], []);
 // Create a simple text document manager. The text document manager
 // supports full document sync only
 let documents: TextDocuments = new TextDocuments();
@@ -35,13 +37,9 @@ connection.onInitialize((params): InitializeResult => {
 		capabilities: {
 			// Tell the client that the server works in FULL text document sync mode
 			textDocumentSync: documents.syncKind,
-			// Tell the client that the server support code complete
-			// completionProvider: {
-			// 	resolveProvider: false
-			// }
 		}
-	}
-});
+	
+}});
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
@@ -52,51 +50,40 @@ documents.onDidChangeContent(debounce((change) => {
 
 // The settings interface describe the server relevant settings part
 interface Settings {
-	languageServerExample: ExampleSettings;
+	perlSyntax: PerlSyntaxSettings;
 }
 
 // These are the example settings we defined in the client's package.json
 // file
-interface ExampleSettings {
-	maxNumberOfProblems: number;
+interface PerlSyntaxSettings {
+	includePaths: string[],
+	prependCode: string[],
+	additionalOptions: string[],
 }
 
+let settin
+
 // hold the maxNumberOfProblems setting
-let maxNumberOfProblems: number;
 // The settings have changed. Is send on server activation
 // as well.
 connection.onDidChangeConfiguration((change) => {
 	let settings = <Settings>change.settings;
-	maxNumberOfProblems = settings.languageServerExample.maxNumberOfProblems || 100;
+	// maxNumberOfProblems = settings.perlSyntax.maxNumberOfProblems || 100;
+	linter.includePaths = settings.perlSyntax.includePaths;
+	linter.perlOptions = settings.perlSyntax.additionalOptions;
+	linter.prependCode = settings.perlSyntax.prependCode;
 	// Revalidate any open text documents
 	documents.all().forEach(validateTextDocument);
 });
+
 
 function validateTextDocument(textDocument: TextDocument): void {
 	let diagnostics: Diagnostic[] = [];
 	let lines = textDocument.getText().split(/\r?\n/g);
 	let problems = 0;
-	linter.lint(textDocument.getText(), (diags: Diagnostic[]) => {
+	linter.lint(textDocument.uri, textDocument.getText(), (diags: Diagnostic[]) => {
 		connection.sendDiagnostics({ uri: textDocument.uri, diagnostics: diags });
 	});
-	// for (var i = 0; i < lines.length && problems < maxNumberOfProblems; i++) {
-	// 	let line = lines[i];
-	// 	let index = line.indexOf('typescript');
-	// 	if (index >= 0) {
-	// 		problems++;
-	// 		diagnostics.push({
-	// 			severity: DiagnosticSeverity.Error,
-	// 			range: {
-	// 				start: { line: i, character: index},
-	// 				end: { line: i, character: index + 10 }
-	// 			},
-	// 			message: `${line.substr(index, 10)} should be spelled TypeScript`,
-	// 			source: 'ex'
-	// 		});
-	// 	}
-	// }
-	// Send the computed diagnostics to VSCode.
-	
 }
 
 connection.onDidChangeWatchedFiles((change) => {

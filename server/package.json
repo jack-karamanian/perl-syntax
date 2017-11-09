@@ -1,13 +1,17 @@
 {
-  "name": "language-server-example",
-  "description": "Example implementation of a language server in node.",
+  "name": "perl-syntax",
+  "description": "Perl error and warning highlighter for Visual Studio Code.",
   "version": "0.0.1",
-  "author": "Microsoft Corporation",
+  "author": "Jack Karamanian",
   "license": "MIT",
   "engines": {
-    "node": "*"
+    "node": "*",
+    "vscode": "^0.10.0"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.72",
+    "lodash": "^4.17.4",
+    "vscode": "^1.1.6",
     "vscode-languageserver": "^3.0.4"
   },
   "devDependencies": {
@@ -16,6 +20,7 @@
   },
   "scripts": {
     "compile": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
-    "watch": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p ."
+    "watch": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p .",
+    "postinstall": "node ./node_modules/vscode/bin/install"
   }
 }

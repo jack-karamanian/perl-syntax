@@ -1,28 +1,38 @@
 import * as childProcess from 'child_process';
 import { Diagnostic, Range, Position, DiagnosticSeverity } from 'vscode-languageserver';
 
+const LINE_REGEX = /line (\d*)[\.,]/;
+
+interface DocumentProcess {
+    [document: string]: childProcess.ChildProcess;
+};
+
 export class PerlLinter {
-    process: childProcess.ChildProcess;
-    constructor(private includePath: string[]) {
-        this.process = null;
+    private documentProcesses: DocumentProcess;
+
+    constructor(public includePaths: string[], public perlOptions: string[], public prependCode: string[]) {
+        this.documentProcesses = {};
     }
 
-    lint(text: string, callback: (diag: Diagnostic[]) => void) : void {
+    lint(uri: string, text: string, callback: (diag: Diagnostic[]) => void) : void {
         const diagnostics: Diagnostic[] = [];
 
-        if (this.process) {
-            this.process.kill('SIGINT');
+        let process: childProcess.ChildProcess = this.documentProcesses[uri];
+
+        if (process) {
+            process.kill('SIGINT');
         }
 
-        this.process = childProcess.spawn('perl', ['-Xc']);
-        this.process.stdin.write("use strict;use warnings;use experimental qw/smartmatch/;" + text);
-        this.process.stdin.end("\x04");
-        this.process.stderr.on('data', (lineBuf) => {
+        this.documentProcesses[uri] = process = childProcess.spawn('perl', ['-c', ...this.perlOptions, ...this.includePaths.map(path => '-I' + path)]);
+        process.stdin.write(this.prependCode.join('') + text);
+        process.stdin.end("\x04");
+        process.stderr.on('data', (lineBuf) => {
             const lineStr: string = lineBuf.toString();
             const lines: string[] = lineStr.split('\n');
-
+            console.log(lines);
             lines.forEach((line, index) => {
-                if(line.match(/line (\d*)[\.,]/)) {
+                if(line.match(LINE_REGEX)) {
+                    console.log(line);
                     let lineNum = this.extractLineNumber(line) - 1;
                     if(!isNaN(lineNum)) {
                         const diagnostic: Diagnostic = Diagnostic.create(
@@ -35,13 +45,13 @@ export class PerlLinter {
                 }    
             });     
         });
-        this.process.addListener('exit', function(code: number, signal: string) {
+        process.addListener('exit', function(code: number, signal: string) {
             callback(diagnostics);    
         });   
     }
 
     private extractLineNumber(line: string): number {
-        const matches = line.match(/line (\d*)[\.,]/);
+        const matches = line.match(LINE_REGEX);
         return parseInt(matches[1]);       
     }
 }
