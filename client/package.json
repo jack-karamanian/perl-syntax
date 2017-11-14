@@ -3,7 +3,7 @@
   "description": "Syntax checker for Perl.",
   "author": "Jack Karamanian",
   "license": "MIT",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "jackkaramanian",
   "engines": {
     "vscode": "^1.8.0"
