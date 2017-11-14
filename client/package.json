@@ -3,12 +3,14 @@
   "description": "Syntax checker for Perl.",
   "author": "Jack Karamanian",
   "license": "MIT",
-  "version": "0.0.1",
-  "publisher": "vscode",
+  "version": "0.0.3",
+  "publisher": "jkaramanian",
   "engines": {
     "vscode": "^1.8.0"
   },
   "categories": [
+    "Languages",
+    "Linters",
     "Other"
   ],
   "activationEvents": [
@@ -18,8 +20,13 @@
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "Example configuration",
+      "title": "Perl Syntax",
       "properties": {
+        "perlSyntax.perlExecutable": {
+          "type": "string",
+          "default": "perl",
+          "description": "The Perl executable to use."
+        },
         "perlSyntax.includePaths": {
           "type": "array",
           "default": [],
@@ -38,7 +45,6 @@
           "default": [],
           "description": "Additional options to pass to the Perl executable."
         }
-      
       }
     }
   },
@@ -50,11 +56,11 @@
   },
   "devDependencies": {
     "@types/mocha": "^2.2.33",
-    "@types/node": "^6.0.52",
-    "typescript": "^2.1.5",
-    "vscode": "^1.0.3"
+    "@types/node": "^8.0.34",
+    "typescript": "^2.5.3",
+    "vscode": "^1.1.5"
   },
   "dependencies": {
-    "vscode-languageclient": "^3.0.3"
+    "vscode-languageclient": "3.2.1"
   }
 }

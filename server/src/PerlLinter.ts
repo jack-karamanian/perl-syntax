@@ -10,7 +10,7 @@ interface DocumentProcess {
 export class PerlLinter {
     private documentProcesses: DocumentProcess;
 
-    constructor(public includePaths: string[], public perlOptions: string[], public prependCode: string[]) {
+    constructor(public perlExecutable: string, public includePaths: string[], public perlOptions: string[], public prependCode: string[]) {
         this.documentProcesses = {};
     }
 
@@ -23,7 +23,7 @@ export class PerlLinter {
             process.kill('SIGINT');
         }
 
-        this.documentProcesses[uri] = process = childProcess.spawn('perl', ['-c', ...this.perlOptions, ...this.includePaths.map(path => '-I' + path)]);
+        this.documentProcesses[uri] = process = childProcess.spawn(this.perlExecutable, ['-c', ...this.perlOptions, ...this.includePaths.map(path => '-I' + path)]);
         process.stdin.write(this.prependCode.join('') + text);
         process.stdin.end("\x04");
         process.stderr.on('data', (lineBuf) => {
