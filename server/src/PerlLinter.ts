@@ -29,10 +29,8 @@ export class PerlLinter {
         process.stderr.on('data', (lineBuf) => {
             const lineStr: string = lineBuf.toString();
             const lines: string[] = lineStr.split('\n');
-            console.log(lines);
             lines.forEach((line, index) => {
                 if(line.match(LINE_REGEX)) {
-                    console.log(line);
                     let lineNum = this.extractLineNumber(line) - 1;
                     if(!isNaN(lineNum)) {
                         const diagnostic: Diagnostic = Diagnostic.create(
