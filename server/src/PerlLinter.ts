@@ -1,7 +1,9 @@
 import * as childProcess from 'child_process';
+import * as _ from 'lodash';
 import { Diagnostic, Range, Position, DiagnosticSeverity } from 'vscode-languageserver';
 
 const LINE_REGEX = /line (\d*)[\.,]/;
+const SPLICE_SIZE = 1000;
 
 interface DocumentProcess {
     [document: string]: childProcess.ChildProcess;
@@ -18,13 +20,18 @@ export class PerlLinter {
         const diagnostics: Diagnostic[] = [];
 
         let process: childProcess.ChildProcess = this.documentProcesses[uri];
-
         if (process) {
             process.kill('SIGINT');
         }
 
         this.documentProcesses[uri] = process = childProcess.spawn(this.perlExecutable, ['-c', ...this.perlOptions, ...this.includePaths.map(path => '-I' + path)]);
-        process.stdin.write(this.prependCode.join('') + text);
+        text.slice()
+        process.stdin.write(this.prependCode.join(''));
+        for (const i of _.range(0, _.ceil(text.length / SPLICE_SIZE))) {
+            const textSlice = text.slice(SPLICE_SIZE * i, (SPLICE_SIZE * i) + SPLICE_SIZE);
+            process.stdin.write(textSlice);
+        }
+        // process.stdin.write(this.prependCode.join('') + text);
         process.stdin.end("\x04");
         process.stderr.on('data', (lineBuf) => {
             const lineStr: string = lineBuf.toString();
