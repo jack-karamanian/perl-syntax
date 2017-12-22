@@ -25,7 +25,7 @@ export class PerlLinter {
         }
 
         this.documentProcesses[uri] = process = childProcess.spawn(this.perlExecutable, ['-c', ...this.perlOptions, ...this.includePaths.map(path => '-I' + path)]);
-        text.slice()
+        
         process.stdin.write(this.prependCode.join(''));
         for (const i of _.range(0, _.ceil(text.length / SPLICE_SIZE))) {
             const textSlice = text.slice(SPLICE_SIZE * i, (SPLICE_SIZE * i) + SPLICE_SIZE);
