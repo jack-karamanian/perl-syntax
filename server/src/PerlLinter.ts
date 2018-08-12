@@ -3,6 +3,7 @@ import * as _ from 'lodash';
 import { Diagnostic, Range, Position, DiagnosticSeverity } from 'vscode-languageserver';
 
 const LINE_REGEX = /line (\d*)[\.,]/;
+const LINE_REGEX_INVERSE = /(line )\d*([\.,])/;
 
 interface DocumentProcess {
     [document: string]: childProcess.ChildProcess;
@@ -50,18 +51,24 @@ export class PerlLinter {
             let lastErrorLineNum = 0;
             lines.forEach((line, index) => {
                 if(line.match(LINE_REGEX)) {
-                    let lineNum = this.extractLineNumber(line) - 1;
-                    if(!isNaN(lineNum)) {
+                    const errorLineNum = this.extractLineNumber(line);
+
+                    // Ignore the line of prependCode
+                    const normalizedLineNum = errorLineNum - 1;
+
+                    // Convert to 0 based line numbers
+                    const documentLineNum = errorLineNum - 2; 
+                    if(!isNaN(errorLineNum)) {
                         const diagnostic: Diagnostic = Diagnostic.create(
                             Range.create(
-                                Position.create(lineNum, 0),
-                                Position.create(lineNum, line.length)
+                                Position.create(documentLineNum, 0),
+                                Position.create(documentLineNum, line.length)
                             ),
-                            line,
+                            this.normalizeErrorLineNumber(line, normalizedLineNum),
                             DiagnosticSeverity.Error
                         );
                         diagnostics.push(diagnostic);
-                        lastErrorLineNum = lineNum;
+                        lastErrorLineNum = documentLineNum;
                     }
                 }    
                 if(line.match(/has too many errors\.$/)) {
@@ -78,7 +85,7 @@ export class PerlLinter {
             });     
         });
         
-        process.stdin.write(this.prependCode.join(''));
+        process.stdin.write(this.prependCode.join('') + '\n');
         process.stdin.write(text);
         process.stdin.end("\x04");
     }
@@ -86,5 +93,9 @@ export class PerlLinter {
     private extractLineNumber(line: string): number {
         const matches = line.match(LINE_REGEX);
         return parseInt(matches[1]);       
+    }
+
+    private normalizeErrorLineNumber(line: string, lineNumber: number): string {
+        return line.replace(LINE_REGEX_INVERSE, `$1${lineNumber}$2`);
     }
 }
