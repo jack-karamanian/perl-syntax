@@ -57,7 +57,7 @@ export class PerlLinter {
                     const normalizedLineNum = errorLineNum - 1;
 
                     // Convert to 0 based line numbers
-                    const documentLineNum = errorLineNum - 2; 
+                    const documentLineNum = normalizedLineNum - 1; 
                     if(!isNaN(errorLineNum)) {
                         const diagnostic: Diagnostic = Diagnostic.create(
                             Range.create(
