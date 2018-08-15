@@ -32,7 +32,8 @@ export class PerlLinter {
 
     this.documentProcesses[uri] = process = childProcess.spawn(
       this.perlExecutable,
-      ['-c', ...this.perlOptions, ...this.includePaths.map(path => '-I' + path)]
+      ['-c', ...this.perlOptions, ...this.includePaths.map(path => '-I' + path)],
+      { shell: true },
     );
 
     process.stdin.on('error', (err: Error) => {
